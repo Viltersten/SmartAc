@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Api.Models.Domain;
+﻿using Api.Models.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -13,6 +9,7 @@ namespace Api.Auxiliaries
         public Context(DbContextOptions<Context> options) : base(options) { }
 
         public DbSet<Device> Devices { get; set; }
+        public DbSet<Measure> Measures { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -24,6 +21,11 @@ namespace Api.Auxiliaries
         private static void OnModelCreating(EntityTypeBuilder<Device> entity)
         {
             entity.Ignore(a => a.Version);
+        }
+
+        private static void OnModelCreating(EntityTypeBuilder<Measure> entity)
+        {
+            entity.HasKey(a => new { a.DeviceId, Occasion = a.RecordedOn });
         }
     }
 }
