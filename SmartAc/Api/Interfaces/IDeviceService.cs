@@ -7,5 +7,6 @@ namespace Api.Interfaces
     public interface IDeviceService
     {
         Task<bool> Register(Device payload);
+        Task<bool> Report(Measure[] payload);
     }
 }

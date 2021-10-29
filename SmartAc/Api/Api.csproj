@@ -25,7 +25,6 @@
   <ItemGroup>
     <Folder Include="Models\Constants\" />
     <Folder Include="Models\Infos\" />
-    <Folder Include="Models\Enums\" />
     <Folder Include="Models\Configs\" />
     <Folder Include="Models\Misc\" />
   </ItemGroup>

@@ -57,6 +57,24 @@ namespace Api.Services
             return true;
         }
 
+        public async Task<bool> Report(Measure[] payload)
+        {
+            // todo Verify that such device exists.
+            try
+            {
+                await Context.Measures.AddRangeAsync(payload);
+
+                await Context.SaveChangesAsync();
+            }
+            catch (MeasureNotStoredException exception)
+            {
+                // todo Log exception.
+                return false;
+            }
+
+            return true;
+        }
+
         private void ValidateId(string id)
         {
             string pattern = "^[0-9a-zA-Z]{24,32}$";
