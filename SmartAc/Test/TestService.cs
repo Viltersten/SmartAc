@@ -1,6 +1,6 @@
-using System;
 using Xunit;
 using Api.Interfaces;
+using Api.Models.Exceptions;
 
 namespace Test
 {

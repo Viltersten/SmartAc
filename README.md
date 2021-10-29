@@ -20,6 +20,9 @@ I'm choosing to go with scoped for all the services for now. Optimization of the
 
 I'm skipping mocking libraries for the moment. I can mock up services at a later stage. The same goes for the controllers. It needs to be there but I want to have something running soon to bring down the anxiety. 
 
+i'm omitting the automapper for now. The reason is that it usually leades to a pain of configurations and can be done in chunk for all the objects once I see how extensive and complicated converstion paradigm is required. Doing it bitwise will cost more time.
+
+
 
 
 
