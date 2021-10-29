@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <UserSecretsId>aspnet-Api-36B9F553-177A-4970-BAA2-04445C07D5D4</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.7" />
+    <PackageReference Include="Microsoft.Identity.Web" Version="1.1.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Auxiliaries\" />
+    <Folder Include="Models\Infos\" />
+    <Folder Include="Models\Domain\" />
+    <Folder Include="Models\Enums\" />
+    <Folder Include="Models\Configs\" />
+    <Folder Include="Models\Misc\" />
+    <Folder Include="Models\Dtos\" />
+    <Folder Include="Models\Exceptions\" />
+  </ItemGroup>
+
+</Project>
