@@ -1,3 +1,4 @@
+using Api.Auxiliaries;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Api.Interfaces;
 using Api.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace Api
 {
@@ -23,8 +25,12 @@ namespace Api
             //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             //    .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
 
+            services.AddEntityFrameworkInMemoryDatabase()
+                .AddDbContext<Context>(options => options.UseInMemoryDatabase("Squicker"));
+
             services.AddScoped<ITestService, TestService>();
-            
+            services.AddScoped<IDeviceService, DeviceService>();
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
