@@ -15,7 +15,7 @@ namespace Api.Auxiliaries
             Patch = self.Patch
         };
 
-        public static Measure[] ToDomain(this MeasureDto[] self) => self.Select(a => a.ToDomain()).ToArray();
+        public static Measure[] ToDomain(this MeasureDto[] self, DateTime reportedOn) => self.Select(a => a.ToDomain(reportedOn)).ToArray();
 
         public static Measure ToDomain(this MeasureDto self, DateTime reportedOn) => new Measure
         {

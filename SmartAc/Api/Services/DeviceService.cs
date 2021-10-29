@@ -59,6 +59,7 @@ namespace Api.Services
 
         public async Task<bool> Report(Measure[] payload)
         {
+            // todo Verify that such device exists.
             try
             {
                 await Context.Measures.AddRangeAsync(payload);

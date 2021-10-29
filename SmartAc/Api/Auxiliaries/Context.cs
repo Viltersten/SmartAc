@@ -16,6 +16,7 @@ namespace Api.Auxiliaries
             base.OnModelCreating(builder);
 
             OnModelCreating(builder.Entity<Device>());
+            OnModelCreating(builder.Entity<Measure>());
         }
 
         private static void OnModelCreating(EntityTypeBuilder<Device> entity)
@@ -25,7 +26,7 @@ namespace Api.Auxiliaries
 
         private static void OnModelCreating(EntityTypeBuilder<Measure> entity)
         {
-            entity.HasKey(a => new { a.DeviceId, Occasion = a.RecordedOn });
+            entity.HasKey(a => new { a.DeviceId, a.RecordedOn });
         }
     }
 }
