@@ -18,13 +18,18 @@ namespace Api.Controllers
 
         public DeviceController(IDeviceService service) => Service = service;
 
-        [AllowAnonymous, HttpPut("register"), ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [AllowAnonymous, HttpPut("register"),
+         ProducesResponseType(StatusCodes.Status200OK),
+         ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register([FromBody] DeviceDto dto)
         {
             // todo Add Exception handling.
             bool output = await Service.Register(dto.ToDomain());
 
-            return Ok(output);
+            if (!output)
+                return BadRequest();
+
+            return Ok();
         }
 
         // todo Make secure.

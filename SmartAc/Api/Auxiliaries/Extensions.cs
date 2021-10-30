@@ -27,5 +27,7 @@ namespace Api.Auxiliaries
             Carbon = self.Carbon,
             Health = self.Health
         };
+
+        public static bool Outside(this double self, double min, double max) => self < min || self > max;
     }
 }
