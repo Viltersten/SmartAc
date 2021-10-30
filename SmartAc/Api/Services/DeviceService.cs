@@ -4,17 +4,22 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Api.Auxiliaries;
 using Api.Interfaces;
+using Api.Models.Configs;
 using Api.Models.Domain;
+using Api.Models.Enums;
 using Api.Models.Exceptions;
+using Microsoft.Extensions.Options;
 
 namespace Api.Services
 {
     public class DeviceService : IDeviceService
     {
+        public AlertConfig Config { get; }
         public Context Context { get; }
 
-        public DeviceService(Context context)
+        public DeviceService(IOptions<AlertConfig> config, Context context)
         {
+            Config = config.Value;
             Context = context;
         }
 
@@ -30,7 +35,7 @@ namespace Api.Services
                 if (target == null)
                 {
                     target = device;
-                    target.Initial = now;
+                    target.InitedOn = now;
                     Context.Add(target);
                 }
                 else
@@ -39,7 +44,7 @@ namespace Api.Services
                     target.Minor = device.Minor;
                     target.Patch = device.Patch;
                 }
-                target.Latest = now;
+                target.UpdatedOn = now;
 
                 await Context.SaveChangesAsync();
             }
@@ -62,6 +67,9 @@ namespace Api.Services
             // todo Verify that such device exists.
             try
             {
+                foreach (Measure measure in payload)
+                    await Investigate(measure);
+
                 await Context.Measures.AddRangeAsync(payload);
 
                 await Context.SaveChangesAsync();
@@ -82,6 +90,40 @@ namespace Api.Services
 
             if (!validId)
                 throw new InvalidSerialNumberException(id);
+        }
+
+        private async Task Investigate(Measure measure)
+        {
+            string sensor = "Temperature";
+            if (measure.Temperature.Outside(Config[sensor].Min, Config[sensor].Max))
+                await ReportAlert(measure, sensor);
+
+            sensor = "Humidity";
+            if (measure.Humidity.Outside(Config[sensor].Min, Config[sensor].Max))
+                await ReportAlert(measure, sensor);
+
+            sensor = "Carbon";
+            if (measure.Carbon.Outside(Config[sensor].Min, Config[sensor].Max))
+                await ReportAlert(measure, sensor);
+
+            sensor = "Health";
+            if (measure.Health != HealthStatus.Ok)
+                await ReportAlert(measure, sensor);
+        }
+
+        private async Task ReportAlert(Measure measure, string sensor)
+        {
+            Alert alert = new Alert
+            {
+                DeviceId = measure.DeviceId,
+                Measure = measure,
+                Message = Config[sensor].Message,
+                RecordedOn = measure.RecordedOn,
+                RecognizedOn = DateTime.UtcNow,
+                View = ViewStatus.New,
+                Resolution = ResolutionStatus.New
+            };
+            await Context.AddAsync(alert);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Test
         // todo Mock up db context properly.
         //public DeviceService(IDeviceService service) => Service = service;
 
-        public DeviceService() => Service = new Api.Services.DeviceService(null);
+        public DeviceService() => Service = new Api.Services.DeviceService(null, null);
 
         [Fact]
         public async Task RegisterInvalidId()
