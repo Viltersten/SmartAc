@@ -8,6 +8,7 @@ using Api.Models.Configs;
 using Api.Models.Domain;
 using Api.Models.Enums;
 using Api.Models.Exceptions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Api.Services
@@ -67,11 +68,13 @@ namespace Api.Services
             // todo Verify that such device exists.
             try
             {
+                //await Context.Measures.AddRangeAsync(payload);
+
                 foreach (Measure measure in payload)
+                {
+                    await Store(measure);
                     await Investigate(measure);
-
-                await Context.Measures.AddRangeAsync(payload);
-
+                }
                 await Context.SaveChangesAsync();
             }
             catch (MeasureNotStoredException exception)
@@ -90,6 +93,16 @@ namespace Api.Services
 
             if (!validId)
                 throw new InvalidSerialNumberException(id);
+        }
+
+
+        private async Task Store(Measure measure)
+        {
+            bool present = Context.Measures
+                .Any(a => a.DeviceId == measure.DeviceId && a.RecordedOn == measure.RecordedOn);
+
+            if (!present)
+                await Context.Measures.AddRangeAsync(measure);
         }
 
         private async Task Investigate(Measure measure)
@@ -113,17 +126,33 @@ namespace Api.Services
 
         private async Task ReportAlert(Measure measure, string sensor)
         {
-            Alert alert = new Alert
+            AlertType type = sensor.ToAlertType();
+            Alert current = await Context.Alerts
+                .Include(a => a.Measure)
+                .SingleOrDefaultAsync(a
+                    => a.DeviceId == measure.DeviceId
+                    && a.Type == type
+                    && (a.Resolution == ResolutionStatus.New || a.ResolvedOn < measure.RecordedOn));
+
+            if (current == null)
             {
-                DeviceId = measure.DeviceId,
-                Measure = measure,
-                Message = Config[sensor].Message,
-                RecordedOn = measure.RecordedOn,
-                RecognizedOn = DateTime.UtcNow,
-                View = ViewStatus.New,
-                Resolution = ResolutionStatus.New
-            };
-            await Context.AddAsync(alert);
+                current = new Alert
+                {
+                    DeviceId = measure.DeviceId,
+                    Type = type,
+                    Measure = measure,
+                    Message = Config[sensor].Message,
+                    RecordedOn = measure.RecordedOn,
+                    RecognizedOn = DateTime.UtcNow,
+                    View = ViewStatus.New,
+                    Resolution = ResolutionStatus.New
+                };
+                await Context.AddAsync(current);
+            }
+            else
+                current.RecordedOn = new[] { current.RecordedOn, measure.RecordedOn }.Max();
+
+            await Context.SaveChangesAsync();
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Linq;
 using Api.Models.Domain;
 using Api.Models.Dtos;
+using Api.Models.Enums;
 
 namespace Api.Auxiliaries
 {
@@ -29,5 +30,14 @@ namespace Api.Auxiliaries
         };
 
         public static bool Outside(this double self, double min, double max) => self < min || self > max;
+
+        public static AlertType ToAlertType(this string self) => self switch
+        {
+            "Temperature" => AlertType.Temperature,
+            "Humidity" => AlertType.Humidity,
+            "Carbon" => AlertType.Carbon,
+            "Health" => AlertType.Health,
+            _ => AlertType.None
+        };
     }
 }

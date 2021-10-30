@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Api.Models.Configs
 {
-    public class AlertConfig : Dictionary<string, AlertConfig.AlertType>
+    public class AlertConfig : Dictionary<string, AlertConfig.AlertDetail>
     {
         //public string Name { get; set; }
-        //public Dictionary<string, AlertType> Types { get; set; }
+        //public Dictionary<string, AlertDetail> Details { get; set; }
 
-        public class AlertType
+        public class AlertDetail
         {
             public string Name { get; set; }
             public string Message { get; set; }
