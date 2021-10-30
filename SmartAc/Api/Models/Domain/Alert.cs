@@ -7,6 +7,7 @@ namespace Api.Models.Domain
     {
         public Guid Id { get; set; }
         public string DeviceId { get; set; }
+        public AlertType Type { get; set; }
         public DateTime RecognizedOn { get; set; }
         public DateTime RecordedOn { get; set; }
         public DateTime? ResolvedOn { get; set; }
