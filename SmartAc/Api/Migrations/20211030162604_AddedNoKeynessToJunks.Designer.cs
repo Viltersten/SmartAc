@@ -4,14 +4,16 @@ using Api.Auxiliaries;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Api.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20211030162604_AddedNoKeynessToJunks")]
+    partial class AddedNoKeynessToJunks
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -89,10 +91,6 @@ namespace Api.Migrations
 
             modelBuilder.Entity("Api.Models.Domain.Junk", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
@@ -102,8 +100,6 @@ namespace Api.Migrations
                     b.Property<string>("Payload")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
-
-                    b.HasKey("Id");
 
                     b.ToTable("Junks");
                 });

@@ -44,6 +44,7 @@ namespace Api.Services
                     target.Major = device.Major;
                     target.Minor = device.Minor;
                     target.Patch = device.Patch;
+                    await ResolveAlert(device.Id);
                 }
                 target.UpdatedOn = now;
 
@@ -68,12 +69,10 @@ namespace Api.Services
             // todo Verify that such device exists.
             try
             {
-                //await Context.Measures.AddRangeAsync(payload);
-
                 foreach (Measure measure in payload)
                 {
                     await Store(measure);
-                    await Investigate(measure);
+                    await InvestigateIssues(measure);
                 }
                 await Context.SaveChangesAsync();
             }
@@ -95,33 +94,44 @@ namespace Api.Services
                 throw new InvalidSerialNumberException(id);
         }
 
-
         private async Task Store(Measure measure)
         {
             bool present = Context.Measures
                 .Any(a => a.DeviceId == measure.DeviceId && a.RecordedOn == measure.RecordedOn);
 
-            if (!present)
-                await Context.Measures.AddRangeAsync(measure);
+            if (present)
+                return;
+
+            await Context.Measures.AddRangeAsync(measure);
+            await Context.SaveChangesAsync();
         }
 
-        private async Task Investigate(Measure measure)
+        private async Task InvestigateIssues(Measure measure)
         {
             string sensor = "Temperature";
-            if (measure.Temperature.Outside(Config[sensor].Min, Config[sensor].Max))
+            bool temperatureIssue = measure.Temperature.Outside(Config[sensor].Min, Config[sensor].Max);
+            if (temperatureIssue)
                 await ReportAlert(measure, sensor);
+            else
+                await ResolveAlert(measure, sensor);
 
             sensor = "Humidity";
             if (measure.Humidity.Outside(Config[sensor].Min, Config[sensor].Max))
                 await ReportAlert(measure, sensor);
+            else
+                await ResolveAlert(measure, sensor);
 
             sensor = "Carbon";
             if (measure.Carbon.Outside(Config[sensor].Min, Config[sensor].Max))
                 await ReportAlert(measure, sensor);
+            else
+                await ResolveAlert(measure, sensor);
 
             sensor = "Health";
             if (measure.Health != HealthStatus.Ok)
                 await ReportAlert(measure, sensor);
+            else
+                await ResolveAlert(measure, sensor);
         }
 
         private async Task ReportAlert(Measure measure, string sensor)
@@ -151,6 +161,43 @@ namespace Api.Services
             }
             else
                 current.RecordedOn = new[] { current.RecordedOn, measure.RecordedOn }.Max();
+
+            // todo Consider moving further along the flow.
+            await Context.SaveChangesAsync();
+        }
+
+        private async Task ResolveAlert(Measure measure, string sensor)
+        {
+            AlertType type = sensor.ToAlertType();
+            Alert current = await Context.Alerts
+                .SingleOrDefaultAsync(a
+                    => a.DeviceId == measure.DeviceId
+                    && a.Type == type
+                    && a.Resolution == ResolutionStatus.New
+                    && a.RecordedOn < measure.RecordedOn);
+
+            if (current == null)
+                return;
+
+            current.Resolution = ResolutionStatus.Resolved;
+            current.ResolvedOn = measure.ReportedOn;
+
+            // todo Consider moving further along the flow.
+            await Context.SaveChangesAsync();
+        }
+
+        private async Task ResolveAlert(string deviceId)
+        {
+            Alert current = await Context.Alerts.SingleOrDefaultAsync(a
+                => a.DeviceId == deviceId
+                && a.Type == AlertType.None
+                && a.Resolution == ResolutionStatus.New);
+
+            if (current == null)
+                return;
+
+            current.Resolution = ResolutionStatus.Resolved;
+            current.ResolvedOn = DateTime.UtcNow;
 
             await Context.SaveChangesAsync();
         }
