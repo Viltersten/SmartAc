@@ -40,6 +40,7 @@ namespace Api
 
             services.AddOptions<SecurityConfig>().Bind(Configuration.GetSection("Security"));
             services.AddOptions<AlertConfig>().Bind(Configuration.GetSection("Alerts"));
+            services.AddOptions<UserConfig>().Bind(Configuration.GetSection("Users"));
 
             services.AddScoped<ITestService, TestService>();
             services.AddScoped<ISecurityService, SecurityService>();

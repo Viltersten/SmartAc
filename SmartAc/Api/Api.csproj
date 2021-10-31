@@ -24,7 +24,6 @@
 
   <ItemGroup>
     <Folder Include="Models\Constants\" />
-    <Folder Include="Models\Infos\" />
     <Folder Include="Models\Misc\" />
   </ItemGroup>
 

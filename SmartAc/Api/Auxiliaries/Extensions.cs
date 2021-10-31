@@ -3,6 +3,7 @@ using System.Linq;
 using Api.Models.Domain;
 using Api.Models.Dtos;
 using Api.Models.Enums;
+using Api.Models.Infos;
 
 namespace Api.Auxiliaries
 {
@@ -38,6 +39,15 @@ namespace Api.Auxiliaries
             "Carbon" => AlertType.Carbon,
             "Health" => AlertType.Health,
             _ => AlertType.None
+        };
+
+        public static MeasureInfo ToInfo(this Measure self) => new MeasureInfo
+        {
+            RecordedOn = self.RecordedOn,
+            Temperature = self.Temperature,
+            Humidity = self.Humidity,
+            Carbon = self.Carbon,
+            Health = self.Health.ToString()
         };
     }
 }

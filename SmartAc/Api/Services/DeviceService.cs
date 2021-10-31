@@ -95,7 +95,6 @@ namespace Api.Services
                 throw new InvalidSerialNumberException(id);
         }
 
-
         private async Task Store(Measure measure)
         {
             bool present = Context.Measures
