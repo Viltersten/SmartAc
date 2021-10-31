@@ -32,13 +32,13 @@ namespace Api.Controllers
             return Ok();
         }
 
-        // todo Make secure.
-        [AllowAnonymous, HttpPost("report"),
+        [HttpPost("report"),
          ProducesResponseType(typeof(bool), StatusCodes.Status200OK),
          ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Report([FromBody] MeasureDto[] dto)
         {
             // todo Add Exception handling.
+            // todo Verify the serial number of the device.
             DateTime now = DateTime.UtcNow;
             bool output = await Service.Report(dto.Select(a => a.ToDomain(now)).ToArray());
 
