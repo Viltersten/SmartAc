@@ -32,23 +32,13 @@ namespace Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                //.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, JwtBearerOptions());
-                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme,
-                    options =>
-                    {
-                        options.TokenValidationParameters = new TokenValidationParameters()
-                        {
-                            ValidateIssuer = false,
-                            ValidateAudience = false,
-                            ValidateIssuerSigningKey = false,
-                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("Abcd1234()Abcd123[]"))
-                        };
-                    });
+                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, JwtBearerOptions());
 
             services.AddDbContext<Context>(ContextOptions());
             //services.AddEntityFrameworkInMemoryDatabase()
             //    .AddDbContext<Context>(options => options.UseInMemoryDatabase("Squicker"));
 
+            services.AddOptions<SecurityConfig>().Bind(Configuration.GetSection("Security"));
             services.AddOptions<AlertConfig>().Bind(Configuration.GetSection("Alerts"));
 
             services.AddScoped<ITestService, TestService>();
@@ -80,10 +70,7 @@ namespace Api
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
 
         private Action<DbContextOptionsBuilder> ContextOptions()
@@ -102,6 +89,8 @@ namespace Api
 
         private Action<JwtBearerOptions> JwtBearerOptions()
         {
+            string secret = Configuration.GetSection("Security:Secret").Value;
+            byte[] encoding = Encoding.ASCII.GetBytes(secret);
             Action<JwtBearerOptions> output = options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters()
@@ -109,7 +98,7 @@ namespace Api
                     ValidateIssuer = false,
                     ValidateAudience = false,
                     ValidateIssuerSigningKey = false,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("Abcd1234()Abcd123[]"))
+                    IssuerSigningKey = new SymmetricSecurityKey(encoding)
                 };
             };
 
