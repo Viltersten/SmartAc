@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using Api.Auxiliaries;
 using Microsoft.AspNetCore.Builder;
@@ -11,8 +12,11 @@ using Microsoft.OpenApi.Models;
 using Api.Interfaces;
 using Api.Models.Configs;
 using Api.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Api
 {
@@ -27,8 +31,19 @@ namespace Api
 
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            //    .AddMicrosoftIdentityWebApi(Configuration.GetSection("AzureAd"));
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                //.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, JwtBearerOptions());
+                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme,
+                    options =>
+                    {
+                        options.TokenValidationParameters = new TokenValidationParameters()
+                        {
+                            ValidateIssuer = false,
+                            ValidateAudience = false,
+                            ValidateIssuerSigningKey = false,
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("Abcd1234()Abcd123[]"))
+                        };
+                    });
 
             services.AddDbContext<Context>(ContextOptions());
             //services.AddEntityFrameworkInMemoryDatabase()
@@ -37,6 +52,7 @@ namespace Api
             services.AddOptions<AlertConfig>().Bind(Configuration.GetSection("Alerts"));
 
             services.AddScoped<ITestService, TestService>();
+            services.AddScoped<ISecurityService, SecurityService>();
             services.AddScoped<IDeviceService, DeviceService>();
 
             services.AddControllers();
@@ -80,6 +96,22 @@ namespace Api
                     connection,
                     options => options.MigrationsAssembly(assembly)
                 );
+
+            return output;
+        }
+
+        private Action<JwtBearerOptions> JwtBearerOptions()
+        {
+            Action<JwtBearerOptions> output = options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateIssuerSigningKey = false,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("Abcd1234()Abcd123[]"))
+                };
+            };
 
             return output;
         }
