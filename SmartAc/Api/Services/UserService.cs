@@ -24,10 +24,23 @@ namespace Api.Services
             Context = context;
         }
 
-        public Device[] GetDevices(int page, int size)
+        public async Task<Device> GetDevice(string id)
         {
+            Device output = await Context.Devices.SingleOrDefaultAsync(a => a.Id == id);
+            if (output == null)
+                throw new DeviceNotFoundException();
+
+            return output;
+        }
+
+        public Device[] GetDevices(DateTime? startOn, DateTime? endOn, int page, int size)
+        {
+            startOn ??= DateTime.MinValue;
+            endOn ??= DateTime.MaxValue;
+
             int start = page * size;
             Device[] output = Context.Devices
+                .Where(a => a.InitedOn > startOn && a.InitedOn < endOn)
                 .OrderByDescending(a => a.UpdatedOn)
                 .Skip(start).Take(size).ToArray();
 

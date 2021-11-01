@@ -22,9 +22,11 @@ namespace Api.Controllers
         [HttpGet("devices"),
          ProducesResponseType(StatusCodes.Status200OK),
          ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public IActionResult GetDevices([FromQuery] int page, [FromQuery] int size)
+        public IActionResult GetDevices(
+            [FromQuery] DateTime startOn, [FromQuery] DateTime endOn,
+            [FromQuery] int page, [FromQuery] int size)
         {
-            Device[] output = Service.GetDevices(page, size);
+            Device[] output = Service.GetDevices(startOn, endOn, page, size);
 
             return Ok(output);
         }

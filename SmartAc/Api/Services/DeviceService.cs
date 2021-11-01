@@ -28,26 +28,21 @@ namespace Api.Services
         {
             try
             {
-                ValidateId(device.Id);
+                Device target = await Context.Devices.SingleOrDefaultAsync(a => a.Id == device.Id);
+                if (target == null)
+                    throw new InvalidSerialNumberException();
 
                 DateTime now = DateTime.UtcNow;
-                Device target = Context.Devices.SingleOrDefault(a => a.Id == device.Id);
 
-                if (target == null)
-                {
-                    target = device;
-                    target.InitedOn = now;
-                    Context.Add(target);
-                }
-                else
-                {
-                    target.Major = device.Major;
-                    target.Minor = device.Minor;
-                    target.Patch = device.Patch;
-                }
+                target.InitedOn ??= now;
                 target.UpdatedOn = now;
+                target.Major = device.Major;
+                target.Minor = device.Minor;
+                target.Patch = device.Patch;
 
-                await Context.SaveChangesAsync();
+                bool success = 0 < await Context.SaveChangesAsync();
+                if (!success)
+                    throw new DeviceNotRegisteredException();
             }
             catch (InvalidSerialNumberException exception)
             {
@@ -57,6 +52,11 @@ namespace Api.Services
             catch (DeviceNotRegisteredException exception)
             {
                 // todo Log exception.
+                return false;
+            }
+            catch (Exception exception)
+            {
+                // todo Log exception;
                 return false;
             }
 
@@ -84,15 +84,6 @@ namespace Api.Services
             }
 
             return true;
-        }
-
-        private void ValidateId(string id)
-        {
-            string pattern = "^[0-9a-zA-Z]{24,32}$";
-            bool validId = Regex.IsMatch(id, pattern);
-
-            if (!validId)
-                throw new InvalidSerialNumberException(id);
         }
 
         private async Task Store(Measure measure)
