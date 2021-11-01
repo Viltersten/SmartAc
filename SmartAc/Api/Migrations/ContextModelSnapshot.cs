@@ -79,6 +79,10 @@ namespace Api.Migrations
                     b.Property<int>("Patch")
                         .HasColumnType("int");
 
+                    b.Property<string>("Secret")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("UpdatedOn")
                         .HasColumnType("datetime2");
 

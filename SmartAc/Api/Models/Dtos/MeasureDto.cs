@@ -1,5 +1,4 @@
 ﻿using System;
-using Api.Models.Enums;
 
 namespace Api.Models.Dtos
 {
@@ -10,6 +9,6 @@ namespace Api.Models.Dtos
         public double Temperature { get; set; }
         public double Humidity { get; set; }
         public double Carbon { get; set; }
-        public HealthStatus Health { get; set; }
+        public string Health { get; set; }
     }
 }

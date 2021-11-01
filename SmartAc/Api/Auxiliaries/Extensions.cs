@@ -12,6 +12,7 @@ namespace Api.Auxiliaries
         public static Device ToDomain(this DeviceDto self) => new()
         {
             Id = self.Id,
+            Secret = self.Secret,
             Major = self.Major,
             Minor = self.Minor,
             Patch = self.Patch
@@ -27,7 +28,7 @@ namespace Api.Auxiliaries
             Temperature = self.Temperature,
             Humidity = self.Humidity,
             Carbon = self.Carbon,
-            Health = self.Health
+            Health = Enum.Parse<HealthStatus>(self.Health.Replace("needs_", ""), true)
         };
 
         public static bool Outside(this double self, double min, double max) => self < min || self > max;

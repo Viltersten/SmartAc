@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Api.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20211030085739_Init")]
+    [Migration("20211101161609_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -51,6 +51,9 @@ namespace Api.Migrations
                     b.Property<DateTime?>("ResolvedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
                     b.Property<int>("View")
                         .HasColumnType("int");
 
@@ -66,10 +69,7 @@ namespace Api.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("Initial")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("Latest")
+                    b.Property<DateTime?>("InitedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Major")
@@ -80,6 +80,13 @@ namespace Api.Migrations
 
                     b.Property<int>("Patch")
                         .HasColumnType("int");
+
+                    b.Property<string>("Secret")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 

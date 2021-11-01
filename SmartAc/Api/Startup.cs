@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Api.Interfaces;
 using Api.Models.Configs;
+using Api.Models.Domain;
 using Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -118,6 +120,9 @@ namespace Api
             //await context.Database.MigrateAsync();
             //scope.Dispose();
             context.Database.Migrate();
+
+            if (!context.Devices.Any())
+                DemoData.SeedDb(context);
         }
     }
 }

@@ -17,20 +17,24 @@ namespace Api.Services
     {
         public AlertConfig Config { get; }
         public Context Context { get; }
+        public ISecurityService Service { get; }
 
-        public DeviceService(IOptions<AlertConfig> config, Context context)
+        public DeviceService(IOptions<AlertConfig> config, Context context, ISecurityService service)
         {
             Config = config.Value;
             Context = context;
+            Service = service;
         }
 
-        public async Task<bool> Register(Device device)
+        public async Task<string> Register(Device device)
         {
+            string output = String.Empty;
             try
             {
-                Device target = await Context.Devices.SingleOrDefaultAsync(a => a.Id == device.Id);
+                Device target = await Context.Devices
+                    .SingleOrDefaultAsync(a => a.Id == device.Id && a.Secret == device.Secret);
                 if (target == null)
-                    throw new InvalidSerialNumberException();
+                    throw new InvalidCredentialsException(device.Id + "/" + device.Secret);
 
                 DateTime now = DateTime.UtcNow;
 
@@ -44,23 +48,25 @@ namespace Api.Services
                 if (!success)
                     throw new DeviceNotRegisteredException();
             }
-            catch (InvalidSerialNumberException exception)
+            catch (InvalidCredentialsException exception)
             {
                 // todo Log exception.
-                return false;
+                return output;
             }
             catch (DeviceNotRegisteredException exception)
             {
                 // todo Log exception.
-                return false;
+                return output;
             }
             catch (Exception exception)
             {
                 // todo Log exception;
-                return false;
+                return output;
             }
 
-            return true;
+            output = Service.GenerateToken(device.Id);
+
+            return output;
         }
 
         public async Task<bool> Report(Measure[] payload)
@@ -92,7 +98,7 @@ namespace Api.Services
                 .Any(a => a.DeviceId == measure.DeviceId && a.RecordedOn == measure.RecordedOn);
 
             if (!present)
-                await Context.Measures.AddRangeAsync(measure);
+                await Context.Measures.AddAsync(measure);
         }
 
         private async Task Investigate(Measure measure)
@@ -110,7 +116,7 @@ namespace Api.Services
                 await ReportAlert(measure, sensor);
 
             sensor = "Health";
-            if (measure.Health != HealthStatus.Ok)
+            if (measure.Health != HealthStatus.OK)
                 await ReportAlert(measure, sensor);
         }
 
@@ -123,6 +129,7 @@ namespace Api.Services
                     => a.DeviceId == measure.DeviceId
                     && a.Type == type
                     && (a.Resolution == ResolutionStatus.New || a.ResolvedOn < measure.RecordedOn));
+
 
             if (current == null)
             {
@@ -137,6 +144,7 @@ namespace Api.Services
                     View = ViewStatus.New,
                     Resolution = ResolutionStatus.New
                 };
+                await Context.Measures.AddAsync(measure);
                 await Context.AddAsync(current);
             }
             else

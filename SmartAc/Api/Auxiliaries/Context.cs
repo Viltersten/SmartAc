@@ -23,6 +23,8 @@ namespace Api.Auxiliaries
 
         private static void OnModelCreating(EntityTypeBuilder<Device> entity)
         {
+            entity.Property(a => a.Secret).IsRequired();
+
             entity.Ignore(a => a.Version);
         }
 
