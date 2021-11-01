@@ -10,8 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
-    [Authorize]
-    [ApiController, Route("[controller]")]
+    [ApiController, Authorize, Route("[controller]")]
     public class DeviceController : ControllerBase
     {
         public IDeviceService Service { get; set; }

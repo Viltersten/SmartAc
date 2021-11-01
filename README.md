@@ -30,6 +30,8 @@ More details and refined structure of exceptions would allow for more informativ
 
 The textual alert is requested to be stored. In my opinion, it's a poor design. I would recommmend that we store a code for the event. That way, we save space, we allow for multi-lingual feed-back and still can generated the text by read-only properties. THat said, requirement is king. On the same note, being in state "resolved" or "ignored", implies a decision made, hence implying state of "viewed". Optimally, I'd suggest unifying those into four stages: new, viewed, resolved, ignored.
 
+The time based chunking up is rather unoptimized. I'm choosing to resolve it to produce correct result first. Later on, if time permits, it can be refactored to for speed.
+
 
 
 
