@@ -4,14 +4,16 @@ using Api.Auxiliaries;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Api.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20211030162049_AddedJunk")]
+    partial class AddedJunk
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,7 +69,7 @@ namespace Api.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime?>("InitedOn")
+                    b.Property<DateTime>("InitedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Major")
@@ -79,11 +81,7 @@ namespace Api.Migrations
                     b.Property<int>("Patch")
                         .HasColumnType("int");
 
-                    b.Property<string>("Secret")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedOn")
+                    b.Property<DateTime>("UpdatedOn")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
@@ -93,10 +91,6 @@ namespace Api.Migrations
 
             modelBuilder.Entity("Api.Models.Domain.Junk", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
@@ -106,8 +100,6 @@ namespace Api.Migrations
                     b.Property<string>("Payload")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
-
-                    b.HasKey("Id");
 
                     b.ToTable("Junks");
                 });

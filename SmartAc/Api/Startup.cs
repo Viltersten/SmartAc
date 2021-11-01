@@ -49,10 +49,7 @@ namespace Api
             services.AddScoped<IDeviceService, DeviceService>();
 
             services.AddControllers();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Api", Version = "v1" });
-            });
+            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "Api", Version = "v1" }); });
         }
 
         public async void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -73,6 +70,7 @@ namespace Api
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseMiddleware<PayloadFormatDetector>();
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
 

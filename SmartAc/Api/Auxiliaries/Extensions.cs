@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Api.Models.Domain;
 using Api.Models.Dtos;
 using Api.Models.Enums;
@@ -7,7 +8,7 @@ using Api.Models.Infos;
 
 namespace Api.Auxiliaries
 {
-    public static class Extensions
+    internal static class Extensions
     {
         public static Device ToDomain(this DeviceDto self) => new()
         {
@@ -50,5 +51,9 @@ namespace Api.Auxiliaries
             Carbon = self.Carbon,
             Health = self.Health.ToString()
         };
+
+        public static string Field(this string self, string field = "") =>
+            Regex.Match(self.Replace("\n", ""), "\"" + field + "\":[ ]?[\"]?([0-9a-zA-Z]*)")
+                .Groups[1].Value;
     }
 }

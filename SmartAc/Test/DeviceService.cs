@@ -12,16 +12,16 @@ namespace Test
         // todo Mock up db context properly.
         //public DeviceService(IDeviceService service) => Service = service;
 
-        public DeviceService() => Service = new Api.Services.DeviceService(null, null, TODO);
+        public DeviceService() => Service = new Api.Services.DeviceService(null, null, null);
 
         [Fact]
         public async Task RegisterInvalidId()
         {
             Device device = new Device { Id = "donkey" };
 
-            bool result = await Service.Register(device);
+            string result = await Service.Register(device);
 
-            Assert.False(result);
+            Assert.NotEqual(string.Empty, result);
             //Assert.ThrowsAsync<InvalidSerialNumberException>(async () => await Service.Register(device));
         }
     }
