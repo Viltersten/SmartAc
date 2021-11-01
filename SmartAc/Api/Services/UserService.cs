@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Api.Auxiliaries;
 using Api.Interfaces;
 using Api.Models.Configs;
 using Api.Models.Domain;
 using Api.Models.Enums;
+using Api.Models.Exceptions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Api.Services
@@ -54,6 +57,35 @@ namespace Api.Services
                 DeviceId = deviceId,
                 Data = aggregates
             };
+
+            return output;
+        }
+
+        public async Task<bool> SetAlertViewed(Guid id)
+        {
+            Alert target = await Context.Alerts.SingleOrDefaultAsync(a => a.Id == id);
+
+            if (target == null)
+                throw new AlertNotFoundException();
+
+            target.View = ViewStatus.Viewed;
+            bool output = 0 < await Context.SaveChangesAsync();
+
+            return output;
+        }
+
+        public async Task<bool> SetAlertIgnored(Guid id)
+        {
+            Alert target = await Context.Alerts.SingleOrDefaultAsync(a => a.Id == id);
+
+            if (target == null)
+                throw new AlertNotFoundException();
+
+            if (target.Resolution == ResolutionStatus.Resolved)
+                throw new AlertAlreadyResolvedException();
+
+            target.Resolution = ResolutionStatus.Ignored;
+            bool output = 0 < await Context.SaveChangesAsync();
 
             return output;
         }
