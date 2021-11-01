@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Api.Auxiliaries;
 using Api.Interfaces;
 using Api.Models.Domain;
-using Api.Models.Dtos;
 using Api.Models.Enums;
 using Api.Models.Infos;
 using Microsoft.AspNetCore.Authorization;
@@ -53,7 +52,29 @@ namespace Api.Controllers
             [FromQuery] DateTime? startOn, [FromQuery] DateTime? endOn,
             [FromQuery] int page, [FromQuery] int size)
         {
-            return null;
+            Series output = Service.GetSeries(deviceId, startOn, endOn);
+
+            return Ok(output);
+        }
+
+        [HttpPatch("alert-viewed"),
+         ProducesResponseType(typeof(Series), StatusCodes.Status200OK),
+         ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> SetAlertViewed([FromQuery] Guid id)
+        {
+            bool output = await Service.SetAlertViewed(id);
+
+            return Ok(output);
+        }
+
+        [HttpPatch("alert-ignored"),
+         ProducesResponseType(typeof(Series), StatusCodes.Status200OK),
+         ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> SetAlertIgnored([FromQuery] Guid id)
+        {
+            bool output = await Service.SetAlertIgnored(id);
+
+            return Ok(output);
         }
     }
 }
