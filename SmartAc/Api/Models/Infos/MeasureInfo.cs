@@ -4,7 +4,7 @@ namespace Api.Models.Infos
 {
     public class MeasureInfo
     {
-        public DateTime RecorderOn { get; set; }
+        public DateTime RecordedOn { get; set; }
         public double Temperature { get; set; }
         public double Humidity { get; set; }
         public double Carbon { get; set; }

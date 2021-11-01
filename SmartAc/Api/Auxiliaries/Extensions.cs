@@ -9,7 +9,7 @@ namespace Api.Auxiliaries
 {
     public static class Extensions
     {
-        public static Device ToDomain(this DeviceDto self) => new Device
+        public static Device ToDomain(this DeviceDto self) => new()
         {
             Id = self.Id,
             Major = self.Major,
@@ -19,7 +19,7 @@ namespace Api.Auxiliaries
 
         public static Measure[] ToDomain(this MeasureDto[] self, DateTime reportedOn) => self.Select(a => a.ToDomain(reportedOn)).ToArray();
 
-        public static Measure ToDomain(this MeasureDto self, DateTime reportedOn) => new Measure
+        public static Measure ToDomain(this MeasureDto self, DateTime reportedOn) => new()
         {
             DeviceId = self.DeviceId,
             RecordedOn = self.RecordedOn,
@@ -41,7 +41,7 @@ namespace Api.Auxiliaries
             _ => AlertType.None
         };
 
-        public static MeasureInfo ToInfo(this Measure self) => new MeasureInfo
+        public static MeasureInfo ToInfo(this Measure self) => new()
         {
             RecordedOn = self.RecordedOn,
             Temperature = self.Temperature,
