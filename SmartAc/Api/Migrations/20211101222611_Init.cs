@@ -25,6 +25,20 @@ namespace Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Junks",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DeviceId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Payload = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Junks", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Measures",
                 columns: table => new
                 {
@@ -81,6 +95,9 @@ namespace Api.Migrations
 
             migrationBuilder.DropTable(
                 name: "Devices");
+
+            migrationBuilder.DropTable(
+                name: "Junks");
 
             migrationBuilder.DropTable(
                 name: "Measures");
