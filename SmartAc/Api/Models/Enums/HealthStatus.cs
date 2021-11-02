@@ -1,16 +1,9 @@
-﻿using System.ComponentModel;
-
-namespace Api.Models.Enums
+﻿namespace Api.Models.Enums
 {
     public enum HealthStatus
     {
-        [Description("None")]
-        None = 0,
-        [Description("OK")]
-        Ok,
-        [Description("needs_filter")]
+        OK,
         Filter,
-        [Description("needs_service")]
         Service
     }
 }

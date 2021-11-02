@@ -11,6 +11,7 @@ namespace Api.Auxiliaries
         public DbSet<Device> Devices { get; set; }
         public DbSet<Measure> Measures { get; set; }
         public DbSet<Alert> Alerts { get; set; }
+        public DbSet<Junk> Junks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -19,10 +20,13 @@ namespace Api.Auxiliaries
             OnModelCreating(builder.Entity<Device>());
             OnModelCreating(builder.Entity<Measure>());
             OnModelCreating(builder.Entity<Alert>());
+            OnModelCreating(builder.Entity<Junk>());
         }
 
         private static void OnModelCreating(EntityTypeBuilder<Device> entity)
         {
+            entity.Property(a => a.Secret).IsRequired();
+
             entity.Ignore(a => a.Version);
         }
 
@@ -34,6 +38,11 @@ namespace Api.Auxiliaries
         private static void OnModelCreating(EntityTypeBuilder<Alert> entity)
         {
             entity.HasOne(a => a.Measure);
+        }
+
+        private static void OnModelCreating(EntityTypeBuilder<Junk> entity)
+        {
+            entity.Property(a => a.Payload).HasMaxLength(500);
         }
     }
 }

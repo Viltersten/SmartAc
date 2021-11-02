@@ -22,9 +22,11 @@ namespace Api.Controllers
         [HttpGet("devices"),
          ProducesResponseType(StatusCodes.Status200OK),
          ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public IActionResult GetDevices([FromQuery] int page, [FromQuery] int size)
+        public IActionResult GetDevices(
+            [FromQuery] DateTime? startOn, [FromQuery] DateTime? endOn,
+            [FromQuery] int page, [FromQuery] int size)
         {
-            Device[] output = Service.GetDevices(page, size);
+            Device[] output = Service.GetDevices(startOn, endOn, page, size);
 
             return Ok(output);
         }
@@ -37,8 +39,7 @@ namespace Api.Controllers
             [FromQuery] DateTime? startOn, [FromQuery] DateTime? endOn,
             [FromQuery] int page, [FromQuery] int size)
         {
-            // todo Apply paging, when known what it implies.
-            MeasureInfo[] output = Service.GetMeasures(deviceId, startOn, endOn)
+            MeasureInfo[] output = Service.GetMeasures(deviceId, startOn, endOn, page, size)
                 .Select(a => a.ToInfo()).ToArray();
 
             return Ok(output);
@@ -52,7 +53,21 @@ namespace Api.Controllers
             [FromQuery] DateTime? startOn, [FromQuery] DateTime? endOn,
             [FromQuery] int page, [FromQuery] int size)
         {
-            Series output = Service.GetSeries(deviceId, startOn, endOn);
+            Series output = Service.GetSeries(deviceId, startOn, endOn, page, size);
+
+            return Ok(output);
+        }
+
+        [HttpGet("alerts"),
+         ProducesResponseType(typeof(MeasureInfo), StatusCodes.Status200OK),
+         ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public IActionResult GetAlerts(
+            [FromQuery] FilterType filter,
+            [FromQuery] DateTime? startOn, [FromQuery] DateTime? endOn,
+            [FromQuery] int page, [FromQuery] int size)
+        {
+            AlertInfo[] output = Service.GetAlerts(filter, startOn, endOn, page, size)
+                .Select(a => a.ToInfo()).ToArray();
 
             return Ok(output);
         }

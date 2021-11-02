@@ -17,50 +17,58 @@ namespace Api.Services
     {
         public AlertConfig Config { get; }
         public Context Context { get; }
+        public ISecurityService Service { get; }
 
-        public DeviceService(IOptions<AlertConfig> config, Context context)
+        public DeviceService(IOptions<AlertConfig> config, Context context, ISecurityService service)
         {
             Config = config.Value;
             Context = context;
+            Service = service;
         }
 
-        public async Task<bool> Register(Device device)
+        public async Task<string> Register(Device device)
         {
+            string output = string.Empty;
             try
             {
-                ValidateId(device.Id);
+                Device target = await Context.Devices
+                    .SingleOrDefaultAsync(a => a.Id == device.Id && a.Secret == device.Secret);
+                if (target == null)
+                    throw new InvalidCredentialsException(device.Id + "/" + device.Secret);
 
                 DateTime now = DateTime.UtcNow;
-                Device target = Context.Devices.SingleOrDefault(a => a.Id == device.Id);
 
-                if (target == null)
-                {
-                    target = device;
-                    target.InitedOn = now;
-                    Context.Add(target);
-                }
-                else
-                {
-                    target.Major = device.Major;
-                    target.Minor = device.Minor;
-                    target.Patch = device.Patch;
-                }
+                target.InitedOn ??= now;
                 target.UpdatedOn = now;
+                target.Major = device.Major;
+                target.Minor = device.Minor;
+                target.Patch = device.Patch;
+                await ResolveAlert(device.Id);
 
-                await Context.SaveChangesAsync();
+                bool success = 0 < await Context.SaveChangesAsync();
+                if (!success)
+                    throw new DeviceNotRegisteredException();
             }
-            catch (InvalidSerialNumberException exception)
+            catch (InvalidCredentialsException exception)
             {
                 // todo Log exception.
-                return false;
+                //return output;
+                throw;
             }
             catch (DeviceNotRegisteredException exception)
             {
                 // todo Log exception.
-                return false;
+                return output;
+            }
+            catch (Exception exception)
+            {
+                // todo Log exception;
+                return output;
             }
 
-            return true;
+            output = Service.GenerateToken(device.Id);
+
+            return output;
         }
 
         public async Task<bool> Report(Measure[] payload)
@@ -68,12 +76,10 @@ namespace Api.Services
             // todo Verify that such device exists.
             try
             {
-                //await Context.Measures.AddRangeAsync(payload);
-
                 foreach (Measure measure in payload)
                 {
                     await Store(measure);
-                    await Investigate(measure);
+                    await InvestigateIssues(measure);
                 }
                 await Context.SaveChangesAsync();
             }
@@ -86,41 +92,44 @@ namespace Api.Services
             return true;
         }
 
-        private void ValidateId(string id)
-        {
-            string pattern = "^[0-9a-zA-Z]{24,32}$";
-            bool validId = Regex.IsMatch(id, pattern);
-
-            if (!validId)
-                throw new InvalidSerialNumberException(id);
-        }
-
         private async Task Store(Measure measure)
         {
             bool present = Context.Measures
                 .Any(a => a.DeviceId == measure.DeviceId && a.RecordedOn == measure.RecordedOn);
 
             if (!present)
-                await Context.Measures.AddRangeAsync(measure);
+                await Context.Measures.AddAsync(measure);
+            //await Context.SaveChangesAsync();
         }
 
-        private async Task Investigate(Measure measure)
+        private async Task InvestigateIssues(Measure measure)
         {
             string sensor = "Temperature";
-            if (measure.Temperature.Outside(Config[sensor].Min, Config[sensor].Max))
+            bool temperatureIssue = measure.Temperature.Outside(Config[sensor].Min, Config[sensor].Max);
+            if (temperatureIssue)
                 await ReportAlert(measure, sensor);
+            else
+                await ResolveAlert(measure, sensor);
 
             sensor = "Humidity";
-            if (measure.Humidity.Outside(Config[sensor].Min, Config[sensor].Max))
+            bool humidityIssue = measure.Humidity.Outside(Config[sensor].Min, Config[sensor].Max);
+            if (humidityIssue)
                 await ReportAlert(measure, sensor);
+            else
+                await ResolveAlert(measure, sensor);
 
             sensor = "Carbon";
-            if (measure.Carbon.Outside(Config[sensor].Min, Config[sensor].Max))
+            bool carbonIssue = measure.Carbon.Outside(Config[sensor].Min, Config[sensor].Max);
+            if (carbonIssue)
                 await ReportAlert(measure, sensor);
+            else
+                await ResolveAlert(measure, sensor);
 
             sensor = "Health";
-            if (measure.Health != HealthStatus.Ok)
+            if (measure.Health != HealthStatus.OK)
                 await ReportAlert(measure, sensor);
+            else
+                await ResolveAlert(measure, sensor);
         }
 
         private async Task ReportAlert(Measure measure, string sensor)
@@ -132,7 +141,7 @@ namespace Api.Services
                     => a.DeviceId == measure.DeviceId
                     && a.Type == type
                     && (a.Resolution == ResolutionStatus.New || a.ResolvedOn < measure.RecordedOn));
-
+            
             if (current == null)
             {
                 current = new Alert
@@ -150,6 +159,44 @@ namespace Api.Services
             }
             else
                 current.RecordedOn = new[] { current.RecordedOn, measure.RecordedOn }.Max();
+
+            // todo Consider moving further along the flow.
+            await Context.SaveChangesAsync();
+        }
+
+        private async Task ResolveAlert(Measure measure, string sensor)
+        {
+            AlertType type = sensor.ToAlertType();
+            Alert current = await Context.Alerts
+                .SingleOrDefaultAsync(a
+                    => a.DeviceId == measure.DeviceId
+                    && a.Type == type
+                    && a.Resolution == ResolutionStatus.New
+                    && a.RecordedOn < measure.RecordedOn);
+
+            if (current == null)
+                return;
+
+            current.Resolution = ResolutionStatus.Resolved;
+            current.ResolvedOn = measure.RecordedOn;
+            //current.ResolvedOn = measure.ReportedOn;
+
+            // todo Consider moving further along the flow.
+            await Context.SaveChangesAsync();
+        }
+
+        private async Task ResolveAlert(string deviceId)
+        {
+            Alert current = await Context.Alerts.SingleOrDefaultAsync(a
+                => a.DeviceId == deviceId
+                && a.Type == AlertType.None
+                && a.Resolution == ResolutionStatus.New);
+
+            if (current == null)
+                return;
+
+            current.Resolution = ResolutionStatus.Resolved;
+            current.ResolvedOn = DateTime.UtcNow;
 
             await Context.SaveChangesAsync();
         }

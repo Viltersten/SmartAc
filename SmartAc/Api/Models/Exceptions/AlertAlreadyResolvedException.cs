@@ -2,5 +2,5 @@
 
 namespace Api.Models.Exceptions
 {
-    public class AlertAlreadyResolvedException:Exception{}
+    public class AlertAlreadyResolvedException : Exception { }
 }

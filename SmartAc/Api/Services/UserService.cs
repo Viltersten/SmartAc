@@ -24,32 +24,69 @@ namespace Api.Services
             Context = context;
         }
 
-        public Device[] GetDevices(int page, int size)
+        public async Task<Device> GetDevice(string id)
         {
+            Device output = await Context.Devices.SingleOrDefaultAsync(a => a.Id == id);
+            if (output == null)
+                throw new DeviceNotFoundException();
+
+            return output;
+        }
+
+        // todo Consider applying Intersector class.
+        public Device[] GetDevices(DateTime? startOn, DateTime? endOn, int page, int size)
+        {
+            startOn ??= DateTime.MinValue;
+            endOn ??= DateTime.MaxValue;
+
             int start = page * size;
             Device[] output = Context.Devices
+                .Where(a => a.UpdatedOn > startOn && a.UpdatedOn < endOn)
                 .OrderByDescending(a => a.UpdatedOn)
                 .Skip(start).Take(size).ToArray();
 
             return output;
         }
 
-        public Measure[] GetMeasures(string deviceId, DateTime? startOn, DateTime? endOn)
+        public Measure[] GetMeasures(string deviceId, DateTime? startOn, DateTime? endOn, int page, int size)
         {
             startOn ??= DateTime.MinValue;
             endOn ??= DateTime.MaxValue;
 
+            int start = page * size;
             Measure[] output = Context.Measures.Where(a
-                => a.DeviceId == deviceId
-                && a.ReportedOn > startOn && a.ReportedOn < endOn)
+                    => a.DeviceId == deviceId
+                    && a.ReportedOn > startOn && a.ReportedOn < endOn)
+                .Skip(start).Take(size)
                 .OrderByDescending(a => a.ReportedOn).ToArray();
 
             return output;
         }
 
-        public Series GetSeries(string deviceId, DateTime? startOn, DateTime? endOn)
+        public Alert[] GetAlerts(FilterType filter, DateTime? startOn, DateTime? endOn, int page, int size)
         {
-            Measure[] measures = GetMeasures(deviceId, startOn, endOn);
+            startOn ??= DateTime.MinValue;
+            endOn ??= DateTime.MaxValue;
+
+            int start = page * size;
+            Alert[] output = Context.Alerts.Where(a
+                    => a.RecordedOn > startOn && a.RecordedOn < endOn
+                    && (filter == FilterType.None
+                        || filter == FilterType.NewIgnored && a.Resolution == ResolutionStatus.Ignored
+                        || filter == FilterType.NewResolved && a.Resolution == ResolutionStatus.Resolved
+                        || filter == FilterType.Viewed && a.View == ViewStatus.Viewed
+                        || filter == FilterType.ViewedIgnored && a.View == ViewStatus.Viewed && a.Resolution == ResolutionStatus.Ignored
+                        || filter == FilterType.ViewedResolved && a.View == ViewStatus.Viewed && a.Resolution == ResolutionStatus.Resolved
+                    ))
+                .Skip(start).Take(size)
+                .OrderByDescending(a => a.RecordedOn).ToArray();
+
+            return output;
+        }
+
+        public Series GetSeries(string deviceId, DateTime? startOn, DateTime? endOn, int page, int size)
+        {
+            Measure[] measures = GetMeasures(deviceId, startOn, endOn, page, size);
             Dictionary<MeasureType, Series.Aggregate[]> aggregates = GetAggregates(measures);
 
             Series output = new()

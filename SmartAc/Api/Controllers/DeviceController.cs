@@ -18,17 +18,17 @@ namespace Api.Controllers
         public DeviceController(IDeviceService service) => Service = service;
 
         [AllowAnonymous, HttpPut("register"),
-         ProducesResponseType(StatusCodes.Status200OK),
+         ProducesResponseType(typeof(string), StatusCodes.Status200OK),
          ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register([FromBody] DeviceDto dto)
         {
             // todo Add Exception handling.
-            bool output = await Service.Register(dto.ToDomain());
+            string output = await Service.Register(dto.ToDomain());
 
-            if (!output)
+            if (string.IsNullOrEmpty(output))
                 return BadRequest();
 
-            return Ok();
+            return Ok(output);
         }
 
         [HttpPost("report"),

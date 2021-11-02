@@ -67,7 +67,7 @@ namespace Api.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("InitedOn")
+                    b.Property<DateTime?>("InitedOn")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Major")
@@ -79,12 +79,37 @@ namespace Api.Migrations
                     b.Property<int>("Patch")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("UpdatedOn")
+                    b.Property<string>("Secret")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
                     b.ToTable("Devices");
+                });
+
+            modelBuilder.Entity("Api.Models.Domain.Junk", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeviceId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Payload")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Junks");
                 });
 
             modelBuilder.Entity("Api.Models.Domain.Measure", b =>

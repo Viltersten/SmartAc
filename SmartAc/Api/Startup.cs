@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Api.Interfaces;
 using Api.Models.Configs;
+using Api.Models.Domain;
 using Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -35,8 +37,6 @@ namespace Api
                 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, JwtBearerOptions());
 
             services.AddDbContext<Context>(ContextOptions());
-            //services.AddEntityFrameworkInMemoryDatabase()
-            //    .AddDbContext<Context>(options => options.UseInMemoryDatabase("Squicker"));
 
             services.AddOptions<SecurityConfig>().Bind(Configuration.GetSection("Security"));
             services.AddOptions<AlertConfig>().Bind(Configuration.GetSection("Alerts"));
@@ -45,12 +45,10 @@ namespace Api
             services.AddScoped<ITestService, TestService>();
             services.AddScoped<ISecurityService, SecurityService>();
             services.AddScoped<IDeviceService, DeviceService>();
+            services.AddScoped<IUserService, UserService>();
 
             services.AddControllers();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Api", Version = "v1" });
-            });
+            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "Api", Version = "v1" }); });
         }
 
         public async void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -71,6 +69,7 @@ namespace Api
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseMiddleware<PayloadFormatDetector>();
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
 
@@ -118,6 +117,9 @@ namespace Api
             //await context.Database.MigrateAsync();
             //scope.Dispose();
             context.Database.Migrate();
+
+            if (!context.Devices.Any())
+                DemoData.SeedDb(context);
         }
     }
 }
