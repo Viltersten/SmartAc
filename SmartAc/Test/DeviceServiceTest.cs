@@ -302,5 +302,68 @@ namespace Test
             Assert.Equal("oops not okay", actual.Message);
             Assert.Equal(AlertType.Health, actual.Type);
         }
+
+        [Fact]
+        public async Task BeAdm04_MergedAlarmsOnlyUpdateOccasion()
+        {
+            DateTime now = DateTime.Today.AddMinutes(100);
+            Measure measure1 = new()
+            {
+                DeviceId = "abcdefghijabcdefghij000001",
+                RecordedOn = now.AddMinutes(1),
+                Health = HealthStatus.Filter
+            };
+            Measure measure2 = new()
+            {
+                DeviceId = "abcdefghijabcdefghij000001",
+                RecordedOn = now.AddMinutes(2),
+                Health = HealthStatus.Filter
+            };
+
+            Measure[] payload = { measure1, measure2 };
+
+            bool result = await Sut.Report(payload);
+            List<Alert> actual = Context.Alerts.ToList();
+
+            Assert.True(result);
+            Assert.NotNull(actual);
+            Assert.Single(actual);
+            Assert.Equal(measure2.RecordedOn, actual.Single().RecordedOn);
+            Assert.NotEqual(measure1.RecordedOn, actual.Single().RecordedOn);
+        }
+
+        [Fact]
+        public async Task BeAdm04_DifferentAlarmsDoNotMerge()
+        {
+            DateTime now = DateTime.Today.AddMinutes(100);
+            Measure measure1 = new()
+            {
+                DeviceId = "abcdefghijabcdefghij000001",
+                RecordedOn = now.AddMinutes(1),
+                Health = HealthStatus.Filter
+            };
+            Measure measure2 = new()
+            {
+                DeviceId = "abcdefghijabcdefghij000001",
+                RecordedOn = now.AddMinutes(2),
+                Health = HealthStatus.Filter
+            };
+            Measure measure3 = new()
+            {
+                DeviceId = "abcdefghijabcdefghij000001",
+                RecordedOn = now.AddMinutes(3),
+                Carbon = 13,
+                Health = HealthStatus.Filter
+            };
+
+            Measure[] payload = { measure1, measure2, measure3 };
+
+            bool result = await Sut.Report(payload);
+            List<Alert> actual = Context.Alerts.ToList();
+
+            Assert.True(result);
+            Assert.NotNull(actual);
+            Assert.Equal(2, actual.Count);
+        }
     }
 }
