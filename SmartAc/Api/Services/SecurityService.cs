@@ -17,6 +17,7 @@ namespace Api.Services
         {
             Config = config.Value;
         }
+
         public bool VerifyPassword(string userName, string password)
         {
             string validator = Config.Password;
