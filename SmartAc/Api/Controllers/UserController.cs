@@ -39,7 +39,6 @@ namespace Api.Controllers
             [FromQuery] DateTime? startOn, [FromQuery] DateTime? endOn,
             [FromQuery] int page, [FromQuery] int size)
         {
-            // todo Apply paging, when known what it implies.
             MeasureInfo[] output = Service.GetMeasures(deviceId, startOn, endOn, page, size)
                 .Select(a => a.ToInfo()).ToArray();
 
@@ -55,6 +54,20 @@ namespace Api.Controllers
             [FromQuery] int page, [FromQuery] int size)
         {
             Series output = Service.GetSeries(deviceId, startOn, endOn, page, size);
+
+            return Ok(output);
+        }
+
+        [HttpGet("alerts"),
+         ProducesResponseType(typeof(MeasureInfo), StatusCodes.Status200OK),
+         ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public IActionResult GetAlerts(
+            [FromQuery] FilterType filter,
+            [FromQuery] DateTime? startOn, [FromQuery] DateTime? endOn,
+            [FromQuery] int page, [FromQuery] int size)
+        {
+            AlertInfo[] output = Service.GetAlerts(filter, startOn, endOn, page, size)
+                .Select(a => a.ToInfo()).ToArray();
 
             return Ok(output);
         }

@@ -52,6 +52,19 @@ namespace Api.Auxiliaries
             Health = self.Health.ToString()
         };
 
+        public static AlertInfo ToInfo(this Alert self) => new()
+        {
+            Id = self.Id,
+            DeviceId = self.DeviceId,
+            Type = self.Type,
+            RecognizedOn = self.RecognizedOn,
+            RecordedOn = self.RecordedOn,
+            ResolvedOn = self.ResolvedOn,
+            Message = self.Message,
+            View = self.View,
+            Resolution = self.Resolution
+        };
+
         public static string Field(this string self, string field = "") =>
             Regex.Match(self.Replace("\n", ""), "\"" + field + "\":[ ]?[\"]?([0-9a-zA-Z]*)")
                 .Groups[1].Value;
