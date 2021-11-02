@@ -17,25 +17,25 @@ namespace Api.Auxiliaries
             {
                 Id = "abcdefghijabcdefghij000001", Secret = "secretto_1", 
                 Major = 2, Minor = 1, Patch = 7,
-                InitedOn = DateTime.Now.AddDays(-5), UpdatedOn = DateTime.Now.AddDays(-3)
+                InitedOn = DateTime.Today.AddDays(-5), UpdatedOn = DateTime.Today.AddDays(-3)
             },
             new Device
             {
                 Id = "abcdefghijabcdefghij000002", Secret = "secretto_2",
                 Major = 2, Minor = 1, Patch = 7,
-                InitedOn = DateTime.Now.AddDays(-4.2), UpdatedOn = DateTime.Now.AddDays(-2.5)
+                InitedOn = DateTime.Today.AddDays(-4.2), UpdatedOn = DateTime.Today.AddDays(-2.5)
             },
             new Device
             {
                 Id = "abcdefghijabcdefghij000003", Secret = "secretto_3",
                 Major = 2, Minor = 2, Patch = 2,
-                InitedOn = DateTime.Now.AddDays(-4.1), UpdatedOn = DateTime.Now.AddDays(-2)
+                InitedOn = DateTime.Today.AddDays(-4.1), UpdatedOn = DateTime.Today.AddDays(-2.2)
             },
             new Device
             {
                 Id = "abcdefghijabcdefghij000004", Secret = "secretto_4",
                 Major = 2, Minor = 3, Patch = 0,
-                InitedOn = DateTime.Now.AddDays(-1.9), UpdatedOn = DateTime.Now.AddDays(-1.9)
+                InitedOn = DateTime.Today.AddDays(-1.9), UpdatedOn = DateTime.Today.AddDays(-1.9)
             },
             new Device { Id = "abcdefghijabcdefghij000005", Secret = "secretto_5" },
             new Device { Id = "abcdefghijabcdefghij000006", Secret = "secretto_6" },

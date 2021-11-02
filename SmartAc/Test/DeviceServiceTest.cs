@@ -43,7 +43,7 @@ namespace Test
         }
 
         [Fact]
-        public async Task BeAdm01_RegisterInit()
+        public async Task BeDev01_VirginRegister()
         {
             Device device = new()
             {
@@ -69,7 +69,7 @@ namespace Test
         }
 
         [Fact]
-        public async Task BeAdm01_RegisterUpdate()
+        public async Task BeDev01_ResetRegister()
         {
             Device device = new()
             {
@@ -95,7 +95,7 @@ namespace Test
         }
 
         [Fact]
-        public async Task BeAdm01_CredentialsFailure()
+        public async Task BeDev01_CredentialsFailure()
         {
             Device device = new()
             {
@@ -112,7 +112,7 @@ namespace Test
         }
 
         [Fact]
-        public async Task BeAdm02_ReportValues()
+        public async Task BeDev02_ReportValues()
         {
             DateTime now = DateTime.Today.AddMinutes(100);
             Measure measure1 = new()
@@ -153,7 +153,7 @@ namespace Test
         }
 
         [Fact]
-        public async Task BeAdm03_DetectAlarms()
+        public async Task BeDev03_DetectAlarms()
         {
             DateTime now = DateTime.Today.AddMinutes(100);
             Measure measure1 = new()
@@ -198,7 +198,7 @@ namespace Test
         }
 
         [Fact]
-        public async Task BeAdm03_DescribeTemperatureAlarm()
+        public async Task BeDev03_DescribeTemperatureAlarm()
         {
             DateTime now = DateTime.Today.AddMinutes(100);
             Measure measure = new()
@@ -229,7 +229,7 @@ namespace Test
         }
 
         [Fact]
-        public async Task BeAdm03_DescribeHumidityAlarm()
+        public async Task BeDev03_DescribeHumidityAlarm()
         {
             DateTime now = DateTime.Today.AddMinutes(100);
             Measure measure = new()
@@ -254,7 +254,7 @@ namespace Test
         }
 
         [Fact]
-        public async Task BeAdm03_DescribeCarbonAlarm()
+        public async Task BeDev03_DescribeCarbonAlarm()
         {
             DateTime now = DateTime.Today.AddMinutes(100);
             Measure measure = new()
@@ -279,7 +279,7 @@ namespace Test
         }
 
         [Fact]
-        public async Task BeAdm03_DescribeHealthAlarm()
+        public async Task BeDev03_DescribeHealthAlarm()
         {
             DateTime now = DateTime.Today.AddMinutes(100);
             Measure measure = new()
@@ -304,7 +304,7 @@ namespace Test
         }
 
         [Fact]
-        public async Task BeAdm04_MergedAlarmsOnlyUpdateOccasion()
+        public async Task BeDev04_MergedAlarmsOnlyUpdateOccasion()
         {
             DateTime now = DateTime.Today.AddMinutes(100);
             Measure measure1 = new()
@@ -333,7 +333,7 @@ namespace Test
         }
 
         [Fact]
-        public async Task BeAdm04_DifferentAlarmsDoNotMerge()
+        public async Task BeDev04_DifferentAlarmsDoNotMerge()
         {
             DateTime now = DateTime.Today.AddMinutes(100);
             Measure measure1 = new()
@@ -364,6 +364,36 @@ namespace Test
             Assert.True(result);
             Assert.NotNull(actual);
             Assert.Equal(2, actual.Count);
+        }
+
+        [Fact]
+        public async Task BeDev05_AlarmSelfResolves()
+        {
+            DateTime now = DateTime.Today.AddMinutes(100);
+            Measure measure1 = new()
+            {
+                DeviceId = "abcdefghijabcdefghij000001",
+                RecordedOn = now.AddMinutes(1),
+                Carbon = 17
+            };
+            Measure measure2 = new()
+            {
+                DeviceId = "abcdefghijabcdefghij000001",
+                RecordedOn = now.AddMinutes(2),
+                Carbon = 2
+            };
+
+            Measure[] payload = { measure1, measure2 };
+
+            bool result = await Sut.Report(payload);
+            List<Alert> actual = Context.Alerts.ToList();
+
+            Assert.True(result);
+            Assert.NotNull(actual);
+            Assert.Single(actual);
+            Assert.Equal(ResolutionStatus.Resolved, actual.Single().Resolution);
+            Assert.Equal(measure2.RecordedOn, actual.Single().ResolvedOn);
+            Assert.Equal(ViewStatus.New, actual.Single().View);
         }
     }
 }

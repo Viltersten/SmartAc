@@ -178,7 +178,8 @@ namespace Api.Services
                 return;
 
             current.Resolution = ResolutionStatus.Resolved;
-            current.ResolvedOn = measure.ReportedOn;
+            current.ResolvedOn = measure.RecordedOn;
+            //current.ResolvedOn = measure.ReportedOn;
 
             // todo Consider moving further along the flow.
             await Context.SaveChangesAsync();

@@ -23,7 +23,7 @@ namespace Api.Controllers
          ProducesResponseType(StatusCodes.Status200OK),
          ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public IActionResult GetDevices(
-            [FromQuery] DateTime startOn, [FromQuery] DateTime endOn,
+            [FromQuery] DateTime? startOn, [FromQuery] DateTime? endOn,
             [FromQuery] int page, [FromQuery] int size)
         {
             Device[] output = Service.GetDevices(startOn, endOn, page, size);
@@ -40,7 +40,7 @@ namespace Api.Controllers
             [FromQuery] int page, [FromQuery] int size)
         {
             // todo Apply paging, when known what it implies.
-            MeasureInfo[] output = Service.GetMeasures(deviceId, startOn, endOn)
+            MeasureInfo[] output = Service.GetMeasures(deviceId, startOn, endOn, page, size)
                 .Select(a => a.ToInfo()).ToArray();
 
             return Ok(output);
@@ -54,7 +54,7 @@ namespace Api.Controllers
             [FromQuery] DateTime? startOn, [FromQuery] DateTime? endOn,
             [FromQuery] int page, [FromQuery] int size)
         {
-            Series output = Service.GetSeries(deviceId, startOn, endOn);
+            Series output = Service.GetSeries(deviceId, startOn, endOn, page, size);
 
             return Ok(output);
         }

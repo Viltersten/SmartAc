@@ -9,6 +9,11 @@
     &lt;TestId&gt;xUnit::C8F7C83E-BF0E-43CD-9272-AEE836289D1D::net5.0::Test.DeviceServiceTest.BeAdm01_CredentialsFailure&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::C8F7C83E-BF0E-43CD-9272-AEE836289D1D::net5.0::Test.DeviceServiceTest.BeAdm02_ReportValues&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::C8F7C83E-BF0E-43CD-9272-AEE836289D1D::net5.0::Test.DeviceServiceTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::C8F7C83E-BF0E-43CD-9272-AEE836289D1D::net5.0::Test.UserServiceTest.BeAaaXx&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::C8F7C83E-BF0E-43CD-9272-AEE836289D1D::net5.0::Test.UserServiceTest.BeAdm03&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::C8F7C83E-BF0E-43CD-9272-AEE836289D1D::net5.0::Test.UserServiceTest.BeAdm03_WithinTimeRange&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::C8F7C83E-BF0E-43CD-9272-AEE836289D1D::net5.0::Test.UserServiceTest.BeAdm03_UnrectrictedTimeRange&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::C8F7C83E-BF0E-43CD-9272-AEE836289D1D::net5.0::Test.UserServiceTest&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=846c8a10_002D707f_002D429d_002Da582_002Dff767051e60d/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SecurityServiceTest #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;

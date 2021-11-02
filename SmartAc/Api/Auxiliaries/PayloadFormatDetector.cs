@@ -19,10 +19,16 @@ namespace Api.Auxiliaries
 
         public async Task Invoke(HttpContext http, Context context)
         {
-            string payload = await GetPayloadAsync(http.Request);
-            bool valid = ValidEntries(payload);
-            if (!valid)
-                await SaveJunk(context, payload);
+            const string reportUrl = "/Device/report";
+            bool validate = reportUrl == http.Request.Path;
+
+            if (validate)
+            {
+                string payload = await GetPayloadAsync(http.Request);
+                bool valid = ValidEntries(payload);
+                if (!valid)
+                    await SaveJunk(context, payload);
+            }
 
             await Next(http);
         }
@@ -62,7 +68,7 @@ namespace Api.Auxiliaries
 
         private async Task SaveJunk(Context context, string payload = "")
         {
-            Junk junk = new Junk
+            Junk junk = new()
             {
                 DeviceId = payload.Field("deviceId"),
                 CreatedOn = DateTime.UtcNow,
@@ -75,7 +81,7 @@ namespace Api.Auxiliaries
                 .CountAsync(a => a.DeviceId == junk.DeviceId);
             if (count > 500)
             {
-                Alert alert = new Alert
+                Alert alert = new()
                 {
                     DeviceId = junk.DeviceId,
                     RecordedOn = junk.CreatedOn,

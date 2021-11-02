@@ -37,8 +37,6 @@ namespace Api
                 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, JwtBearerOptions());
 
             services.AddDbContext<Context>(ContextOptions());
-            //services.AddEntityFrameworkInMemoryDatabase()
-            //    .AddDbContext<Context>(options => options.UseInMemoryDatabase("Squicker"));
 
             services.AddOptions<SecurityConfig>().Bind(Configuration.GetSection("Security"));
             services.AddOptions<AlertConfig>().Bind(Configuration.GetSection("Alerts"));
@@ -47,6 +45,7 @@ namespace Api
             services.AddScoped<ITestService, TestService>();
             services.AddScoped<ISecurityService, SecurityService>();
             services.AddScoped<IDeviceService, DeviceService>();
+            services.AddScoped<IUserService, UserService>();
 
             services.AddControllers();
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "Api", Version = "v1" }); });

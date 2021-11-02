@@ -33,6 +33,7 @@ namespace Api.Services
             return output;
         }
 
+        // todo Consider applying Intersector class.
         public Device[] GetDevices(DateTime? startOn, DateTime? endOn, int page, int size)
         {
             startOn ??= DateTime.MinValue;
@@ -40,29 +41,31 @@ namespace Api.Services
 
             int start = page * size;
             Device[] output = Context.Devices
-                .Where(a => a.InitedOn > startOn && a.InitedOn < endOn)
+                .Where(a => a.UpdatedOn > startOn && a.UpdatedOn < endOn)
                 .OrderByDescending(a => a.UpdatedOn)
                 .Skip(start).Take(size).ToArray();
 
             return output;
         }
 
-        public Measure[] GetMeasures(string deviceId, DateTime? startOn, DateTime? endOn)
+        public Measure[] GetMeasures(string deviceId, DateTime? startOn, DateTime? endOn, int page, int size)
         {
             startOn ??= DateTime.MinValue;
             endOn ??= DateTime.MaxValue;
 
+            int start = page * size;
             Measure[] output = Context.Measures.Where(a
                 => a.DeviceId == deviceId
                 && a.ReportedOn > startOn && a.ReportedOn < endOn)
+                .Skip(start).Take(size)
                 .OrderByDescending(a => a.ReportedOn).ToArray();
 
             return output;
         }
 
-        public Series GetSeries(string deviceId, DateTime? startOn, DateTime? endOn)
+        public Series GetSeries(string deviceId, DateTime? startOn, DateTime? endOn, int page, int size)
         {
-            Measure[] measures = GetMeasures(deviceId, startOn, endOn);
+            Measure[] measures = GetMeasures(deviceId, startOn, endOn, page, size);
             Dictionary<MeasureType, Series.Aggregate[]> aggregates = GetAggregates(measures);
 
             Series output = new()
