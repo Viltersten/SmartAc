@@ -5,15 +5,12 @@ namespace Test
 {
     public class DeviceServiceTest
     {
-        public ITestService Service { get; set; }
+        public IDeviceService Service { get; set; }
 
-        // todo Mock up properly.
-        //public TestService(ITestService service) => Service = service;
-
-        public DeviceServiceTest() => Service = new Api.Services.TestService();
+        public DeviceServiceTest() => Service = new DeviceService();
 
         [Fact]
-        public void Pong()
+        public void BeAdm01()
         {
             // (assign)-act-assert
 
