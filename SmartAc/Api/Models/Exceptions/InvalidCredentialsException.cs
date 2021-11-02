@@ -4,8 +4,8 @@ namespace Api.Models.Exceptions
 {
     public class InvalidCredentialsException : Exception
     {
-        public string Credentials { get; set; }
+        public sealed override string Message { get; }
 
-        public InvalidCredentialsException(string credentials) => Credentials = credentials;
+        public InvalidCredentialsException(string message) => Message = message;
     }
 }

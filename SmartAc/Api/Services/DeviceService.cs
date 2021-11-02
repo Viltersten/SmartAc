@@ -52,7 +52,8 @@ namespace Api.Services
             catch (InvalidCredentialsException exception)
             {
                 // todo Log exception.
-                return output;
+                //return output;
+                throw;
             }
             catch (DeviceNotRegisteredException exception)
             {
@@ -111,13 +112,15 @@ namespace Api.Services
                 await ResolveAlert(measure, sensor);
 
             sensor = "Humidity";
-            if (measure.Humidity.Outside(Config[sensor].Min, Config[sensor].Max))
+            bool humidityIssue = measure.Humidity.Outside(Config[sensor].Min, Config[sensor].Max);
+            if (humidityIssue)
                 await ReportAlert(measure, sensor);
             else
                 await ResolveAlert(measure, sensor);
 
             sensor = "Carbon";
-            if (measure.Carbon.Outside(Config[sensor].Min, Config[sensor].Max))
+            bool carbonIssue = measure.Carbon.Outside(Config[sensor].Min, Config[sensor].Max);
+            if (carbonIssue)
                 await ReportAlert(measure, sensor);
             else
                 await ResolveAlert(measure, sensor);
@@ -138,8 +141,7 @@ namespace Api.Services
                     => a.DeviceId == measure.DeviceId
                     && a.Type == type
                     && (a.Resolution == ResolutionStatus.New || a.ResolvedOn < measure.RecordedOn));
-
-
+            
             if (current == null)
             {
                 current = new Alert
@@ -153,7 +155,6 @@ namespace Api.Services
                     View = ViewStatus.New,
                     Resolution = ResolutionStatus.New
                 };
-                await Context.Measures.AddAsync(measure);
                 await Context.AddAsync(current);
             }
             else

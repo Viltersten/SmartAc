@@ -5,9 +5,8 @@ namespace Api.Auxiliaries
 {
     public static class DemoData
     {
-        internal static void SeedDb(Context context)
+        public static void SeedDb(Context context)
         {
-
             context.Devices.AddRange(Devices);
             context.SaveChanges();
         }
