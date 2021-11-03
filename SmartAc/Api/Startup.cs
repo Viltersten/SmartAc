@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using Api.Auxiliaries;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,11 +11,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Api.Interfaces;
 using Api.Models.Configs;
-using Api.Models.Domain;
 using Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 
@@ -36,6 +33,7 @@ namespace Api
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, JwtBearerOptions());
 
+            //services.AddDistributedSqlServerCache( => );
             services.AddDbContext<Context>(ContextOptions());
 
             services.AddOptions<SecurityConfig>().Bind(Configuration.GetSection("Security"));
@@ -51,7 +49,7 @@ namespace Api
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "Api", Version = "v1" }); });
         }
 
-        public async void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -60,7 +58,7 @@ namespace Api
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Api v1"));
                 IdentityModelEventSource.ShowPII = true;
             }
-            await MigrateDb(app);
+            MigrateDb(app);
 
             app.UseHttpsRedirection();
 
@@ -105,7 +103,7 @@ namespace Api
             return output;
         }
 
-        private static async Task MigrateDb(IApplicationBuilder app)
+        private static void MigrateDb(IApplicationBuilder app)
         {
             using IServiceScope scope = app.ApplicationServices
                 .GetService<IServiceScopeFactory>()?.CreateScope();
